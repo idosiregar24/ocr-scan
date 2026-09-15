@@ -56,3 +56,6 @@ next-env.d.ts
 .claude/plan/
 .claude/settings.local.json
 
+
+# Foto struk yang di-upload saat dev (driver storage lokal, lihat src/lib/storage.ts)
+.uploads/

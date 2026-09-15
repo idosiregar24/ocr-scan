@@ -41,20 +41,20 @@ export function LoginForm() {
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" type="email" autoComplete="email" {...register("email")} />
+          <Input id="email" type="email" inputSize="lg" autoComplete="email" {...register("email")} />
           {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="password">Password</Label>
-          <Input id="password" type="password" autoComplete="current-password" {...register("password")} />
+          <Input id="password" type="password" inputSize="lg" autoComplete="current-password" {...register("password")} />
           {errors.password && <p className="text-sm text-destructive">{errors.password.message}</p>}
         </div>
         {errors.root && <p className="text-sm text-destructive">{errors.root.message}</p>}
-        <Button type="submit" disabled={isSubmitting}>
+        <Button type="submit" size="xl" disabled={isSubmitting}>
           {isSubmitting ? "Memproses..." : "Masuk"}
         </Button>
       </form>
-      <Button variant="outline" onClick={() => signIn("google", { callbackUrl })}>
+      <Button variant="outline" size="xl" onClick={() => signIn("google", { callbackUrl })}>
         Lanjut dengan Google
       </Button>
     </div>

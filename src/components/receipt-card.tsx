@@ -1,34 +1,37 @@
-import { Receipt as ReceiptIcon } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
+import { StatusPill } from "@/components/status-pill";
 import { formatIDR, formatDate } from "@/lib/format";
 import type { ReceiptDTO } from "@/lib/dto/receipt";
 
-const STATUS_LABEL: Record<ReceiptDTO["status"], string> = {
-  PENDING: "Menunggu",
-  PROCESSING: "Memproses",
-  DONE: "Selesai",
-  FAILED: "Gagal",
-};
-
 export function ReceiptCard({ receipt }: { receipt: ReceiptDTO }) {
+  const storeName = receipt.storeName ?? "Toko belum terisi";
+
   return (
-    <div className="rounded-xl border bg-card p-4 shadow-sm transition hover:shadow-md">
-      <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground">
-          <ReceiptIcon className="h-5 w-5" aria-hidden />
+    <Link
+      href={`/receipts/${receipt.id}`}
+      className="group flex flex-col gap-3 rounded-2xl bg-card p-4 ring-1 ring-foreground/10 transition-shadow hover:shadow-md focus-visible:ring-3 focus-visible:ring-ring/50"
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="truncate font-bold text-card-foreground">{storeName}</p>
+          <p className="font-mono text-xs tabular-nums text-muted-foreground">
+            {formatDate(receipt.date ?? receipt.createdAt)}
+          </p>
         </div>
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-semibold text-card-foreground">{receipt.storeName ?? "Toko tidak diketahui"}</p>
-          <p className="text-sm text-muted-foreground">{formatDate(receipt.date)}</p>
-        </div>
-        <Badge variant={receipt.status === "FAILED" ? "destructive" : "secondary"}>
-          {STATUS_LABEL[receipt.status]}
-        </Badge>
+        <StatusPill status={receipt.status} />
       </div>
-      <div className="mt-3 flex items-center justify-between text-sm">
-        <span className="text-muted-foreground">{receipt.items.length} item</span>
-        <span className="font-semibold text-primary">{receipt.total !== null ? formatIDR(receipt.total) : "-"}</span>
+
+      {/* Garis putus-putus meniru pemisah baris pada struk cetak. */}
+      <div className="h-px w-full rule-dotted text-border" aria-hidden />
+
+      <div className="flex items-end justify-between gap-2">
+        <span className="text-sm text-muted-foreground">
+          {receipt.items.length} item
+        </span>
+        <span className="font-mono text-lg font-bold tabular-nums text-foreground">
+          {receipt.total !== null ? formatIDR(receipt.total) : "—"}
+        </span>
       </div>
-    </div>
+    </Link>
   );
 }

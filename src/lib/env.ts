@@ -16,6 +16,8 @@ const envSchema = z.object({
   R2_ACCESS_KEY_ID: z.string().optional(),
   R2_SECRET_ACCESS_KEY: z.string().optional(),
   R2_BUCKET_NAME: z.string().optional(),
+  // Fallback storage saat R2 belum dikonfigurasi (dev lokal) — relatif terhadap root project.
+  STORAGE_LOCAL_DIR: z.string().default(".uploads"),
 
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
