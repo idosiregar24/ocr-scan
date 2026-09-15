@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -70,8 +71,21 @@ const PLANS = [
 export default function LandingPage() {
   return (
     <div className="flex min-h-svh flex-col bg-background">
-      <section className="bg-sky-brand relative text-white">
-        <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-5 md:px-8">
+      <section className="relative text-white">
+        {/* Background Image Hero */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <Image
+            src="/bg2.png"
+            alt="Hero Background"
+            fill
+            priority
+            className="object-cover object-center"
+          />
+          {/* Subtle soft gradient at the top so header & white text pop without darkening the scene */}
+          <div className="absolute inset-0 bg-gradient-to-b from-sky-900/30 via-transparent to-black/20" />
+        </div>
+
+        <header className="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-5 md:px-8">
           <BrandWordmark className="text-white [&_svg]:text-white" />
           <div className="flex items-center gap-2">
             <Button asChild variant="ghost" size="lg" className="text-white hover:bg-white/15 hover:text-white">
@@ -83,24 +97,24 @@ export default function LandingPage() {
           </div>
         </header>
 
-        <div className="mx-auto w-full max-w-6xl px-4 pt-10 pb-40 text-center md:px-8 md:pt-16 md:pb-48">
-          <p className="inline-flex items-center gap-2 rounded-full bg-white/15 px-3.5 py-1.5 text-xs font-semibold backdrop-blur">
+        <div className="relative z-10 mx-auto w-full max-w-6xl px-4 pt-10 pb-40 text-center md:px-8 md:pt-16 md:pb-48">
+          <p className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-slate-900/30 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm backdrop-blur">
             <span className="size-1.5 rounded-full bg-accent" aria-hidden />
             Beta terbuka — paket Free tanpa kartu kredit
           </p>
 
-          <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-extrabold text-balance sm:text-5xl md:text-6xl">
+          <h1 className="mx-auto mt-6 max-w-3xl text-4xl font-extrabold text-balance sm:text-5xl md:text-6xl drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)]">
             Foto struk, biar AI
             <br className="hidden sm:block" /> yang catat belanjamu
           </h1>
 
-          <p className="mx-auto mt-5 max-w-xl text-base text-balance text-white/80 md:text-lg">
+          <p className="mx-auto mt-5 max-w-xl text-base text-balance text-white font-medium drop-shadow-[0_1px_8px_rgba(0,0,0,0.5)] md:text-lg">
             StrukScan membaca item, harga, dan total dari foto struk belanja — lalu menyusunnya jadi
             riwayat pengeluaran yang bisa kamu telusuri kapan saja.
           </p>
 
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Button asChild size="xl" variant="accent">
+            <Button asChild size="xl" variant="accent" className="shadow-lg shadow-black/20">
               <Link href="/register">
                 Mulai gratis
                 <ArrowRight data-icon="inline-end" aria-hidden />
@@ -110,7 +124,7 @@ export default function LandingPage() {
               asChild
               size="xl"
               variant="outline"
-              className="border-white/30 bg-white/10 text-white hover:bg-white/20 hover:text-white"
+              className="border-white/40 bg-slate-900/30 text-white shadow-lg backdrop-blur-xs hover:bg-slate-900/50 hover:text-white"
             >
               <Link href="/login">Sudah punya akun</Link>
             </Button>
@@ -118,7 +132,7 @@ export default function LandingPage() {
         </div>
 
         {/* Struk menembus batas section — jadi jembatan visual ke konten di bawahnya. */}
-        <div className="absolute inset-x-0 -bottom-24 px-4 md:-bottom-28">
+        <div className="absolute inset-x-0 -bottom-24 z-20 px-4 md:-bottom-28">
           <ReceiptShowcase />
         </div>
       </section>
