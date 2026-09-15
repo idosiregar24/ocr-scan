@@ -10,6 +10,13 @@ function failureReasonOf(ocrRaw: Receipt["ocrRaw"]) {
   return typeof error === "string" ? error : null;
 }
 
+/** Field yang di `ocrRaw` ditandai OCR sebagai tebakan lemah — dipakai UI review untuk menyorot yang perlu dicek ulang. */
+function lowConfidenceFieldsOf(ocrRaw: Receipt["ocrRaw"]) {
+  if (!ocrRaw || typeof ocrRaw !== "object" || Array.isArray(ocrRaw)) return [];
+  const fields = (ocrRaw as Record<string, unknown>).lowConfidenceFields;
+  return Array.isArray(fields) ? fields.filter((f): f is string => typeof f === "string") : [];
+}
+
 export function toReceiptDTO(receipt: Receipt & { items: ReceiptItem[] }) {
   return {
     id: receipt.id,
@@ -24,6 +31,7 @@ export function toReceiptDTO(receipt: Receipt & { items: ReceiptItem[] }) {
     total: receipt.total ? Number(receipt.total) : null,
     status: receipt.status,
     failureReason: failureReasonOf(receipt.ocrRaw),
+    lowConfidenceFields: lowConfidenceFieldsOf(receipt.ocrRaw),
     // imageKey mentah tidak pernah dikirim ke client — hanya route ber-auth yang menyajikan fotonya.
     imageUrl: `/api/receipts/${receipt.id}/image`,
     items: receipt.items.map((item) => ({

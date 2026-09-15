@@ -3,8 +3,9 @@
 import { useMemo, useState, useTransition } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus, Save, Trash2 } from "lucide-react";
+import { Plus, Save, Trash2, TriangleAlert } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "cn";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -58,9 +59,19 @@ function toFormValues(receipt: ReceiptDTO): FormValues {
   };
 }
 
+function DoubtBadge() {
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-warning/20 px-1.5 py-0.5 text-[0.65rem] font-semibold text-warning-foreground">
+      <TriangleAlert className="size-3" aria-hidden />
+      Cek foto
+    </span>
+  );
+}
+
 export function OcrReviewForm({ receipt, onSaved, submitLabel = "Simpan struk" }: Props) {
   const [isPending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
+  const isDoubtful = (field: string) => receipt.lowConfidenceFields.includes(field);
 
   const form = useForm<FormValues>({
     // Schema yang sama dipakai server action — satu sumber aturan validasi.
@@ -115,26 +126,56 @@ export function OcrReviewForm({ receipt, onSaved, submitLabel = "Simpan struk" }
     <form onSubmit={onSubmit} className="flex flex-col gap-6">
       <section className="grid gap-4 sm:grid-cols-2">
         <div className="grid gap-1.5">
-          <Label htmlFor="storeName">Nama toko</Label>
+          <div className="flex items-center justify-between gap-2">
+            <Label htmlFor="storeName">Nama toko</Label>
+            {isDoubtful("storeName") && <DoubtBadge />}
+          </div>
           <Input
             id="storeName"
             inputSize="lg"
             placeholder="Indomaret Kebon Jeruk"
             aria-invalid={Boolean(form.formState.errors.storeName)}
+            className={cn(isDoubtful("storeName") && "ring-2 ring-warning")}
             {...form.register("storeName")}
           />
         </div>
         <div className="grid gap-1.5">
-          <Label htmlFor="date">Tanggal</Label>
-          <Input id="date" type="date" inputSize="lg" {...form.register("date")} />
+          <div className="flex items-center justify-between gap-2">
+            <Label htmlFor="date">Tanggal</Label>
+            {isDoubtful("date") && <DoubtBadge />}
+          </div>
+          <Input
+            id="date"
+            type="date"
+            inputSize="lg"
+            className={cn(isDoubtful("date") && "ring-2 ring-warning")}
+            {...form.register("date")}
+          />
         </div>
         <div className="grid gap-1.5">
-          <Label htmlFor="receiptNo">No. struk</Label>
-          <Input id="receiptNo" inputSize="lg" className="font-mono" {...form.register("receiptNo")} />
+          <div className="flex items-center justify-between gap-2">
+            <Label htmlFor="receiptNo">No. struk</Label>
+            {isDoubtful("receiptNo") && <DoubtBadge />}
+          </div>
+          <Input
+            id="receiptNo"
+            inputSize="lg"
+            className={cn("font-mono", isDoubtful("receiptNo") && "ring-2 ring-warning")}
+            {...form.register("receiptNo")}
+          />
         </div>
         <div className="grid gap-1.5">
-          <Label htmlFor="paymentMethod">Metode bayar</Label>
-          <Input id="paymentMethod" inputSize="lg" placeholder="Tunai / QRIS / Debit" {...form.register("paymentMethod")} />
+          <div className="flex items-center justify-between gap-2">
+            <Label htmlFor="paymentMethod">Metode bayar</Label>
+            {isDoubtful("paymentMethod") && <DoubtBadge />}
+          </div>
+          <Input
+            id="paymentMethod"
+            inputSize="lg"
+            placeholder="Tunai / QRIS / Debit"
+            className={cn(isDoubtful("paymentMethod") && "ring-2 ring-warning")}
+            {...form.register("paymentMethod")}
+          />
         </div>
       </section>
 
@@ -163,9 +204,19 @@ export function OcrReviewForm({ receipt, onSaved, submitLabel = "Simpan struk" }
             const qty = Number(watchedItems[index]?.qty) || 0;
             const unitPrice = Number(watchedItems[index]?.unitPrice) || 0;
             const rowError = Array.isArray(itemErrors) ? itemErrors[index] : undefined;
+            const rowIsDoubtful = isDoubtful(`items.${index}`);
 
             return (
-              <li key={field.id} className="rounded-xl border bg-card p-3">
+              <li
+                key={field.id}
+                className={cn("rounded-xl border bg-card p-3", rowIsDoubtful && "border-warning ring-1 ring-warning")}
+              >
+                {rowIsDoubtful && (
+                  <p className="mb-2 flex items-center gap-1.5 text-xs font-semibold text-warning-foreground">
+                    <TriangleAlert className="size-3.5" aria-hidden />
+                    Bandingkan baris ini dengan foto struk
+                  </p>
+                )}
                 <div className="grid gap-3 sm:grid-cols-[1fr_5rem_8rem_auto] sm:items-end">
                   <div className="grid gap-1.5">
                     <Label htmlFor={`items.${index}.name`}>Nama item</Label>
@@ -241,26 +292,32 @@ export function OcrReviewForm({ receipt, onSaved, submitLabel = "Simpan struk" }
       <section className="rounded-2xl bg-secondary p-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="grid gap-1.5">
-            <Label htmlFor="discount">Diskon</Label>
+            <div className="flex items-center justify-between gap-2">
+              <Label htmlFor="discount">Diskon</Label>
+              {isDoubtful("discount") && <DoubtBadge />}
+            </div>
             <Input
               id="discount"
               type="number"
               step="any"
               min="0"
               inputSize="lg"
-              className="bg-card font-mono tabular-nums"
+              className={cn("bg-card font-mono tabular-nums", isDoubtful("discount") && "ring-2 ring-warning")}
               {...form.register("discount")}
             />
           </div>
           <div className="grid gap-1.5">
-            <Label htmlFor="tax">Pajak / PPN</Label>
+            <div className="flex items-center justify-between gap-2">
+              <Label htmlFor="tax">Pajak / PPN</Label>
+              {isDoubtful("tax") && <DoubtBadge />}
+            </div>
             <Input
               id="tax"
               type="number"
               step="any"
               min="0"
               inputSize="lg"
-              className="bg-card font-mono tabular-nums"
+              className={cn("bg-card font-mono tabular-nums", isDoubtful("tax") && "ring-2 ring-warning")}
               {...form.register("tax")}
             />
           </div>
@@ -268,11 +325,17 @@ export function OcrReviewForm({ receipt, onSaved, submitLabel = "Simpan struk" }
 
         <dl className="mt-4 space-y-1.5 border-t pt-4 text-sm">
           <div className="flex justify-between">
-            <dt className="text-muted-foreground">Subtotal item</dt>
+            <dt className="flex items-center gap-1.5 text-muted-foreground">
+              Subtotal item
+              {isDoubtful("subtotal") && <DoubtBadge />}
+            </dt>
             <dd className="font-mono tabular-nums">{formatIDR(computedSubtotal)}</dd>
           </div>
           <div className="flex justify-between text-base font-bold">
-            <dt>Total</dt>
+            <dt className="flex items-center gap-1.5">
+              Total
+              {isDoubtful("total") && <DoubtBadge />}
+            </dt>
             <dd className="font-mono tabular-nums text-primary">{formatIDR(computedTotal)}</dd>
           </div>
         </dl>

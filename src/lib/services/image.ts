@@ -7,7 +7,7 @@ export class UnreadableImageError extends Error {
   }
 }
 
-// Claude Vision tidak butuh resolusi penuh kamera HP; 2000px sisi terpanjang sudah cukup untuk
+// Gemini Vision tidak butuh resolusi penuh kamera HP; 2000px sisi terpanjang sudah cukup untuk
 // teks struk dan memangkas ukuran upload ~10x. Semua format dinormalisasi ke JPEG (termasuk HEIC).
 const MAX_EDGE = 2000;
 const JPEG_QUALITY = 82;

@@ -155,7 +155,7 @@ StrukScan menawarkan solusi tiga langkah yang sederhana:
 ```
 1. Pengguna buka halaman Scan Struk di web/mobile
 2. Upload foto struk (kamera langsung atau pilih dari galeri)
-3. Sistem kirim gambar ke AI OCR engine (Claude Vision / GPT-4o Vision)
+3. Sistem kirim gambar ke AI OCR engine (Gemini Vision API)
 4. AI kembalikan JSON terstruktur:
    { store_name, date, items[], subtotal, discount, tax, total }
 5. Sistem tampilkan hasil dalam form yang bisa diedit pengguna
@@ -176,7 +176,7 @@ StrukScan menawarkan solusi tiga langkah yang sederhana:
 | **Styling** | Tailwind CSS v4 + shadcn/ui | Utility-first, komponen siap pakai, konsisten di seluruh UI |
 | **Database ORM** | Prisma + PostgreSQL (Neon / Supabase) | Type-safe queries, schema migration otomatis, serverless-friendly |
 | **Auth** | NextAuth.js v5 (Auth.js) | OAuth Google/GitHub, session management, built-in untuk Next.js |
-| **AI / OCR Engine** | Claude Vision API (Anthropic) | Akurasi tinggi untuk dokumen tidak terstruktur, support Bahasa Indonesia |
+| **AI / OCR Engine** | Gemini Vision API (Google) | Akurasi tinggi untuk dokumen tidak terstruktur, support Bahasa Indonesia, tier gratis tersedia untuk development |
 | **File Storage** | Cloudflare R2 / AWS S3 | Object storage murah untuk menyimpan foto struk original |
 | **Queue / Worker** | Trigger.dev / BullMQ + Redis | Proses OCR async agar tidak block request, retry otomatis |
 | **Billing** | Stripe + Midtrans (via custom integration) | Stripe untuk kartu internasional, Midtrans untuk QRIS & transfer lokal |
@@ -200,7 +200,7 @@ StrukScan menawarkan solusi tiga langkah yang sederhana:
 ### 5.3 Alur OCR — Sequence
 
 ```
-Client (Next.js)    API Route           Trigger.dev       Claude API      DB (Prisma)
+Client (Next.js)    API Route           Trigger.dev       Gemini API      DB (Prisma)
   │                     │                    │                 │               │
   │── POST /api/scan ──►│                    │                 │               │
   │   FormData {image}  │                    │                 │               │
@@ -209,7 +209,7 @@ Client (Next.js)    API Route           Trigger.dev       Claude API      DB (Pr
   │◄── 202 + jobId ─────│                    │                 │               │
   │                     │                    │── fetch image ─►│               │
   │                     │                    │                 │               │
-  │                     │                    │── Claude Vision►│               │
+  │                     │                    │── Gemini Vision►│               │
   │                     │                    │◄── JSON ────────│               │
   │                     │                    │── prisma.create►│               │
   │                     │                    │                 │               │
@@ -273,7 +273,7 @@ Client (Next.js)    API Route           Trigger.dev       Claude API      DB (Pr
 | ✅ Masuk MVP | ❌ Tidak Masuk MVP |
 |-------------|------------------|
 | Registrasi & login (email + Google OAuth) | Workspace tim / multi-user |
-| Upload & OCR struk (Claude Vision) | Export CSV/PDF |
+| Upload & OCR struk (Gemini Vision) | Export CSV/PDF |
 | Edit manual hasil OCR | Budget alert & notifikasi |
 | Simpan ke database (items, harga, total) | Kategori otomatis AI |
 | Riwayat transaksi (list + detail) | API publik |

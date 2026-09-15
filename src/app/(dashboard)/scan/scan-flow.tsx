@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { ReceiptUploadDropzone } from "@/components/receipt-upload-dropzone";
 import { OcrReviewForm } from "@/components/ocr-review-form";
 import { StatusPill } from "@/components/status-pill";
+import { ReceiptImagePreview } from "@/components/receipt-image-preview";
+import { formatDate } from "@/lib/format";
 import type { ReceiptDTO } from "@/lib/dto/receipt";
 
 type ApiError = { error: { message: string; code?: string } };
@@ -47,10 +49,10 @@ export function ScanFlow({ quotaRemaining }: { quotaRemaining: number | null }) 
     queryKey: ["receipt-job", receiptId],
     queryFn: () => fetchJob(receiptId as string),
     enabled: Boolean(receiptId),
-    // Berhenti polling begitu job selesai; 2 detik sesuai estimasi 3-8 detik per struk (PRD §5.3).
+    // Polling setiap 600ms agar UI langsung menampilkan hasil begitu OCR selesai
     refetchInterval: (query) => {
       const status = query.state.data?.status;
-      return status === "DONE" || status === "FAILED" ? false : 2000;
+      return status === "DONE" || status === "FAILED" ? false : 600;
     },
   });
 
@@ -94,6 +96,8 @@ export function ScanFlow({ quotaRemaining }: { quotaRemaining: number | null }) 
 
   if (!receipt) return null;
 
+  const hasDoubt = receipt.lowConfidenceFields.length > 0;
+
   return (
     <div className="flex flex-col gap-5">
       {receipt.status === "FAILED" ? (
@@ -104,6 +108,16 @@ export function ScanFlow({ quotaRemaining }: { quotaRemaining: number | null }) 
             <p className="text-sm text-muted-foreground">
               {receipt.failureReason ?? "Struk tidak terbaca."} Fotonya tetap tersimpan — isi datanya
               manual di bawah, atau coba foto ulang.
+            </p>
+          </div>
+        </div>
+      ) : hasDoubt ? (
+        <div className="flex items-start gap-3 rounded-2xl bg-warning/12 p-4">
+          <CircleAlert className="mt-0.5 size-5 shrink-0 text-warning-foreground" aria-hidden />
+          <div className="space-y-1">
+            <p className="font-semibold text-foreground">Struk terbaca, tapi ada yang perlu dicek</p>
+            <p className="text-sm text-muted-foreground">
+              Beberapa data ditandai di foto sebelah — bandingkan sebelum disimpan.
             </p>
           </div>
         </div>
@@ -119,13 +133,21 @@ export function ScanFlow({ quotaRemaining }: { quotaRemaining: number | null }) 
         </div>
       )}
 
-      <OcrReviewForm
-        receipt={receipt}
-        onSaved={() => {
-          router.push("/receipts");
-          router.refresh();
-        }}
-      />
+      <div className="grid gap-6 lg:grid-cols-[18rem_1fr] lg:items-start">
+        <ReceiptImagePreview
+          imageUrl={receipt.imageUrl}
+          alt={`Foto struk dari ${receipt.storeName ?? "struk yang baru discan"}, ${formatDate(receipt.date ?? receipt.createdAt)}`}
+          lowConfidenceFields={receipt.lowConfidenceFields}
+        />
+
+        <OcrReviewForm
+          receipt={receipt}
+          onSaved={() => {
+            router.push("/receipts");
+            router.refresh();
+          }}
+        />
+      </div>
 
       <Button type="button" variant="ghost" size="sm" onClick={reset} className="self-start">
         <RotateCcw data-icon="inline-start" aria-hidden />

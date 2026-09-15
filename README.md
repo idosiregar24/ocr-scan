@@ -6,7 +6,7 @@ Lihat [`docs/PRD-StrukScan-SaaS.md`](docs/PRD-StrukScan-SaaS.md) untuk requireme
 
 ## Tech Stack
 
-Next.js 15 (App Router) · TypeScript · Tailwind CSS v4 + shadcn/ui · Prisma + PostgreSQL · NextAuth.js v5 · Claude Vision API (OCR) · Trigger.dev · Stripe/Midtrans · Resend · Zod · TanStack Query + Zustand.
+Next.js 15 (App Router) · TypeScript · Tailwind CSS v4 + shadcn/ui · Prisma + PostgreSQL · NextAuth.js v5 · Gemini Vision API (OCR) · Trigger.dev · Stripe/Midtrans · Resend · Zod · TanStack Query + Zustand.
 
 Detail & rationale tiap pilihan ada di PRD §5.1.
 
@@ -21,7 +21,7 @@ Detail & rationale tiap pilihan ada di PRD §5.1.
    ```bash
    cp .env.example .env.local
    ```
-   Minimal wajib diisi dengan value asli untuk fitur yang butuh DB/AI sungguhan: `DATABASE_URL`, `NEXTAUTH_SECRET`, `ANTHROPIC_API_KEY`. Sisanya (Google OAuth, R2/S3, Stripe, Midtrans, Resend, Trigger.dev, Upstash) bisa menyusul sesuai fitur yang sedang dikerjakan — lihat `src/lib/env.ts` untuk validasi Zod-nya.
+   Minimal wajib diisi dengan value asli untuk fitur yang butuh DB/AI sungguhan: `DATABASE_URL`, `NEXTAUTH_SECRET`, `GEMINI_API_KEY`. Sisanya (Google OAuth, R2/S3, Stripe, Midtrans, Resend, Trigger.dev, Upstash) bisa menyusul sesuai fitur yang sedang dikerjakan — lihat `src/lib/env.ts` untuk validasi Zod-nya.
 
 3. **Setup database.** Mesin ini sudah dilengkapi PostgreSQL 18.6 lokal (portable, non-service — lihat catatan di bawah) di `%LOCALAPPDATA%\strukscan-postgres\`, sudah jalan dan `.env` sudah diarahkan ke situ (database `strukscan`, user `postgres`, password `strukscan_dev_pw` — dev-only). Kalau butuh start/stop manual (mis. setelah restart PC — server ini TIDAK auto-start):
    ```bash
@@ -81,7 +81,7 @@ npx tsc --noEmit
 - **Prisma 7 memindahkan connection URL** dari `schema.prisma` ke `prisma.config.ts`, dan `PrismaClient` sekarang wajib driver adapter eksplisit (`@prisma/adapter-pg`) — lihat `src/lib/prisma.ts`.
 - **NextAuth v5 + Prisma di Middleware**: `middleware.ts` sengaja pakai `lib/auth.config.ts` (edge-safe, tanpa Prisma/`pg`) supaya tidak bentrok dengan Edge Runtime. Config penuh (adapter + provider Credentials) ada di `lib/auth.ts`, hanya untuk Node runtime (Route Handler/Server Component/Server Action).
 - **`npm audit`** masih melaporkan beberapa advisory moderate/high pada dependency transitif `@trigger.dev/sdk` (opentelemetry, `ws` lewat `socket.io-client`, `mysql2` opsional Prisma) yang perbaikannya butuh downgrade Prisma atau upgrade Next major — sengaja tidak di-force-fix karena melanggar tech stack pin di atas. Pantau rilis upstream `@trigger.dev/sdk` untuk update non-breaking.
-- Folder `Repository/tesseract` adalah clone riset Tesseract OCR dari eksplorasi awal sebelum keputusan pakai Claude Vision API — bukan bagian dari aplikasi, di-gitignore, aman dihapus kalau tidak dipakai lagi.
+- Folder `Repository/tesseract` adalah clone riset Tesseract OCR dari eksplorasi awal sebelum keputusan pakai Gemini Vision API — bukan bagian dari aplikasi, di-gitignore, aman dihapus kalau tidak dipakai lagi.
 - **PostgreSQL lokal dipasang manual (bukan installer resmi)**: `winget install PostgreSQL.PostgreSQL.17` gagal karena host download EDB (`get.enterprisedb.com`) diblokir jaringan di lingkungan ini (403). Sebagai gantinya dipakai binary portable dari [`theseus-rs/postgresql-binaries`](https://github.com/theseus-rs/postgresql-binaries) (PostgreSQL 18.6, tanpa installer), di-extract ke `%LOCALAPPDATA%\strukscan-postgres\`. Konsekuensinya:
   - **Bukan Windows Service** — tidak auto-start saat PC nyala/restart. Jalankan `npm run db:start` setiap mulai kerja (`npm run db:stop` untuk mematikan bersih).
   - Kalau winget/installer resmi bisa diakses di jaringanmu, boleh diganti ke instalasi service resmi (`winget install PostgreSQL.PostgreSQL.17`) kapan saja — data lama tinggal di-`pg_dump`/restore, atau langsung `prisma migrate deploy` ke instance baru lalu `npm run db:seed` lagi.

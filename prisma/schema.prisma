@@ -70,7 +70,7 @@ model Receipt {
   tax           Decimal       @default(0) @db.Decimal(12, 2)
   total         Decimal?      @db.Decimal(12, 2)
   status        ReceiptStatus @default(PENDING)
-  // Hasil mentah Claude Vision sebelum dipetakan ke ReceiptItem — sumber reprocessing kalau parsing logic berubah.
+  // Hasil mentah Gemini Vision sebelum dipetakan ke ReceiptItem — sumber reprocessing kalau parsing logic berubah.
   ocrRaw        Json?         @map("ocr_raw")
   createdAt     DateTime      @default(now()) @map("created_at")
   updatedAt     DateTime      @updatedAt @map("updated_at")

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { auth } from "@/lib/auth";
@@ -10,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { StatusPill } from "@/components/status-pill";
 import { OcrReviewForm } from "@/components/ocr-review-form";
 import { DeleteReceiptButton } from "@/components/delete-receipt-button";
+import { ReceiptImagePreview } from "@/components/receipt-image-preview";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -53,16 +53,11 @@ export default async function ReceiptDetailPage({ params }: Props) {
       </header>
 
       <div className="grid gap-6 lg:grid-cols-[18rem_1fr] lg:items-start">
-        <figure className="overflow-hidden rounded-2xl bg-ink">
-          <Image
-            src={receipt.imageUrl}
-            alt={`Foto struk dari ${storeName}, ${formatDate(receipt.date ?? receipt.createdAt)}`}
-            width={600}
-            height={900}
-            unoptimized
-            className="max-h-[26rem] w-full object-contain lg:max-h-none"
-          />
-        </figure>
+        <ReceiptImagePreview
+          imageUrl={receipt.imageUrl}
+          alt={`Foto struk dari ${storeName}, ${formatDate(receipt.date ?? receipt.createdAt)}`}
+          lowConfidenceFields={receipt.lowConfidenceFields}
+        />
 
         <section className="flex flex-col gap-4">
           <h2 className="sr-only">Edit data struk</h2>

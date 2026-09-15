@@ -34,8 +34,8 @@
 - Untuk aksi yang gagal karena state tidak valid (mis. scan struk saat kuota habis, approve invoice yang sudah lunas), lempar custom error class (`class QuotaExceededError extends Error`) dan tangkap di level route/action untuk map ke status code yang tepat — jangan biarkan `console.log`/stack trace mentah bocor ke response.
 
 ## Job & OCR Pipeline
-- Semua pemanggilan Claude Vision API terjadi di dalam job Trigger.dev (atau worker BullMQ), tidak pernah langsung dari Route Handler request-response cycle.
-- Job wajib idempotent & retry-safe (pakai `receiptId` sebagai idempotency key) — kegagalan network ke Claude API tidak boleh membuat data ganda.
+- Semua pemanggilan Gemini Vision API terjadi di dalam job Trigger.dev (atau worker BullMQ), tidak pernah langsung dari Route Handler request-response cycle.
+- Job wajib idempotent & retry-safe (pakai `receiptId` sebagai idempotency key) — kegagalan network ke Gemini API tidak boleh membuat data ganda.
 - Hasil mentah OCR selalu disimpan ke kolom `ocr_raw` (JSON) sebelum di-mapping ke `receipt_items`, supaya bisa di-reprocess kalau parsing logic berubah tanpa perlu foto ulang.
 
 ## Testing

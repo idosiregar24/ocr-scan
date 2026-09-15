@@ -11,7 +11,7 @@ Jangan berasumsi fitur di luar PRD tanpa konfirmasi ke user (Product Manager). S
 - Tailwind CSS v4 + shadcn/ui + Lucide Icons — styling & komponen dasar
 - Prisma + PostgreSQL (Neon/Supabase) — ORM & database
 - NextAuth.js v5 (Auth.js) — auth, OAuth Google/GitHub, session
-- Claude Vision API (Anthropic) — OCR engine utama untuk parsing struk
+- Gemini Vision API (Google) — OCR engine utama untuk parsing struk
 - Cloudflare R2 / AWS S3 — object storage untuk foto struk original
 - Trigger.dev (atau BullMQ + Redis) — job async untuk proses OCR, TIDAK BOLEH memproses OCR secara sinkron di dalam request handler
 - Stripe + Midtrans — billing (kartu internasional + QRIS/transfer lokal)

@@ -1,7 +1,7 @@
 import { after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getObject } from "@/lib/storage";
-import { extractReceiptWithClaude, OcrFailedError, OcrNotConfiguredError } from "@/lib/services/ocr";
+import { extractReceiptWithGemini, OcrFailedError, OcrNotConfiguredError } from "@/lib/services/ocr";
 import { applyOcrResult, markReceiptFailed } from "@/lib/services/receipt";
 
 export type ReceiptOcrPayload = { receiptId: string };
@@ -26,7 +26,7 @@ export async function runReceiptOcrJob({ receiptId }: ReceiptOcrPayload) {
     const image = await getObject(receipt.imageKey);
     if (!image) throw new OcrFailedError("Foto struk tidak ditemukan di storage");
 
-    const result = await extractReceiptWithClaude(image.body, image.contentType);
+    const result = await extractReceiptWithGemini(image.body, image.contentType);
     await applyOcrResult(receiptId, result);
   } catch (err) {
     const reason =
