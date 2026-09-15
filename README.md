@@ -17,11 +17,11 @@ Detail & rationale tiap pilihan ada di PRD §5.1.
    npm install
    ```
 
-2. **Siapkan environment variables** — salin `.env.example` ke `.env.local` dan isi:
+2. **Siapkan environment variables** — file `.env` di repo ini sudah berisi placeholder (dibuat saat scaffolding, di-gitignore, aman) supaya `npm run dev`/`prisma generate` langsung jalan tanpa DB asli. Ganti dengan value asli sebelum kerja fitur yang benar-benar butuh koneksi (atau buat `.env.local` — Next.js otomatis override `.env` dengan `.env.local`):
    ```bash
    cp .env.example .env.local
    ```
-   Minimal wajib diisi untuk `npm run dev` jalan: `DATABASE_URL`, `NEXTAUTH_SECRET`, `ANTHROPIC_API_KEY`. Sisanya (Google OAuth, R2/S3, Stripe, Midtrans, Resend, Trigger.dev, Upstash) bisa menyusul sesuai fitur yang sedang dikerjakan — lihat `src/lib/env.ts` untuk validasi Zod-nya.
+   Minimal wajib diisi dengan value asli untuk fitur yang butuh DB/AI sungguhan: `DATABASE_URL`, `NEXTAUTH_SECRET`, `ANTHROPIC_API_KEY`. Sisanya (Google OAuth, R2/S3, Stripe, Midtrans, Resend, Trigger.dev, Upstash) bisa menyusul sesuai fitur yang sedang dikerjakan — lihat `src/lib/env.ts` untuk validasi Zod-nya.
 
 3. **Setup database** (PostgreSQL — lokal, atau Neon/Supabase):
    ```bash
