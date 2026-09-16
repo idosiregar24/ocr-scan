@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, Plan } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import bcrypt from "bcryptjs";
 
@@ -15,7 +15,7 @@ const DEFAULT_CATEGORIES = [
   { name: "Lainnya", color: "#71717A", icon: "more-horizontal" },
 ];
 
-async function seedDemoData(userId: string) {
+async function seedCategories(userId: string) {
   for (const category of DEFAULT_CATEGORIES) {
     await prisma.category.upsert({
       where: { userId_name: { userId, name: category.name } },
@@ -25,35 +25,58 @@ async function seedDemoData(userId: string) {
   }
 }
 
+const SEED_USERS = [
+  {
+    email: "admin@strukscan.com",
+    name: "Admin StrukScan",
+    password: "password123",
+    plan: "PRO" as Plan,
+  },
+  {
+    email: "idosiregar24@gmail.com",
+    name: "Ido Refael Siregar",
+    password: "password123",
+    plan: "PRO" as Plan,
+  },
+  {
+    email: "demo@strukscan.test",
+    name: "Demo User",
+    password: "password123",
+    plan: "FREE" as Plan,
+  },
+];
+
 async function main() {
-  // Data dummy HANYA untuk lokal/staging — tidak pernah dijalankan otomatis di production (database-standards.md).
-  if (process.env.NODE_ENV === "production") {
-    console.log("Skip seeding: NODE_ENV=production");
-    return;
-  }
+  console.log("--> Menjalankan Seeder Akun StrukScan...");
 
   const passwordHash = await bcrypt.hash("password123", 10);
 
-  const demoUser = await prisma.user.upsert({
-    where: { email: "demo@strukscan.test" },
-    update: {
-      passwordHash,
-    },
-    create: {
-      email: "demo@strukscan.test",
-      name: "Demo User",
-      passwordHash,
-      plan: "FREE",
-    },
-  });
+  for (const u of SEED_USERS) {
+    const user = await prisma.user.upsert({
+      where: { email: u.email },
+      update: {
+        passwordHash,
+        name: u.name,
+        plan: u.plan,
+      },
+      create: {
+        email: u.email,
+        name: u.name,
+        passwordHash,
+        plan: u.plan,
+      },
+    });
 
-  await seedDemoData(demoUser.id);
-  console.log(`Seed selesai untuk user: ${demoUser.email}`);
+    await seedCategories(user.id);
+    console.log(`✓ Akun siap: ${u.email} | Password: ${u.password} (Plan: ${u.plan})`);
+  }
+
+  console.log("=== Seeding Berhasil Selesai! ===");
 }
 
 main()
   .catch((err) => {
-    console.error(err);
+    console.error("Seeding error:", err);
     process.exit(1);
   })
   .finally(async () => {
