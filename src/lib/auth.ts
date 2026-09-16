@@ -16,6 +16,7 @@ const credentialsSchema = z.object({
 // JANGAN import file ini dari middleware.ts, pakai lib/auth.config.ts di sana.
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   providers: [
