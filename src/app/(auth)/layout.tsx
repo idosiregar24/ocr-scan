@@ -22,6 +22,9 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <BrandWordmark />
       </Link>
       <div className="relative z-10 w-full max-w-sm">{children}</div>
+      <footer className="relative z-10 text-center text-xs text-white/70">
+        Dikembangkan oleh <span className="font-semibold text-white">Ido Refael Siregar</span>
+      </footer>
     </div>
   );
 }

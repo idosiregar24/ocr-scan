@@ -36,6 +36,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
               Scan struk
             </Link>
           </Button>
+          <p className="pt-1 text-center text-[11px] text-muted-foreground">
+            Dev: <span className="font-medium text-foreground">Ido Refael Siregar</span>
+          </p>
         </div>
       </aside>
 

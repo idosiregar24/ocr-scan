@@ -286,12 +286,23 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <footer className="border-t">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-8 sm:flex-row sm:items-center sm:justify-between md:px-8">
-          <BrandWordmark />
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} StrukScan. Dibuat untuk yang capek nyatat belanja manual.
-          </p>
+      <footer className="border-t bg-card/40 backdrop-blur-sm">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-10 sm:flex-row sm:items-center sm:justify-between md:px-8">
+          <div className="space-y-2">
+            <BrandWordmark />
+            <p className="text-xs text-muted-foreground">
+              Platform OCR cerdas untuk pencatatan dan pengelolaan struk belanja secara otomatis.
+            </p>
+          </div>
+          <div className="flex flex-col gap-1 sm:items-end text-sm text-muted-foreground">
+            <p>
+              Dikembangkan oleh{" "}
+              <span className="font-semibold text-foreground">Ido Refael Siregar</span>
+            </p>
+            <p className="text-xs text-muted-foreground/80">
+              © {new Date().getFullYear()} StrukScan. Hak cipta dilindungi.
+            </p>
+          </div>
         </div>
       </footer>
     </div>

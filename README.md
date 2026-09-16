@@ -86,3 +86,8 @@ npx tsc --noEmit
   - **Bukan Windows Service** — tidak auto-start saat PC nyala/restart. Jalankan `npm run db:start` setiap mulai kerja (`npm run db:stop` untuk mematikan bersih).
   - Kalau winget/installer resmi bisa diakses di jaringanmu, boleh diganti ke instalasi service resmi (`winget install PostgreSQL.PostgreSQL.17`) kapan saja — data lama tinggal di-`pg_dump`/restore, atau langsung `prisma migrate deploy` ke instance baru lalu `npm run db:seed` lagi.
   - Password superuser (`strukscan_dev_pw`) di-set saat `initdb`, cuma untuk dev lokal — jangan dipakai di staging/production.
+
+## Developer
+
+Dikembangkan oleh **Ido Refael Siregar**.
+
