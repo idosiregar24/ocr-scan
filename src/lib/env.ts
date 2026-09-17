@@ -27,6 +27,11 @@ const envSchema = z.object({
   RESEND_API_KEY: z.string().optional(),
   TRIGGER_SECRET_KEY: z.string().optional(),
 
+  // Opsional: tanpa token, webhook Telegram menolak request dan UI menyembunyikan tombol hubungkan.
+  TELEGRAM_BOT_TOKEN: z.string().optional(),
+  TELEGRAM_BOT_USERNAME: z.string().optional(),
+  TELEGRAM_WEBHOOK_SECRET: z.string().optional(),
+
   UPSTASH_REDIS_REST_URL: z.string().optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
 });

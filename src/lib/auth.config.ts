@@ -1,6 +1,6 @@
 import type { NextAuthConfig } from "next-auth";
 
-const PROTECTED_PREFIXES = ["/dashboard", "/receipts", "/settings", "/scan"];
+const PROTECTED_PREFIXES = ["/dashboard", "/receipts", "/settings", "/scan", "/chat"];
 
 // Config edge-safe — TANPA Prisma adapter/provider yang butuh DB (pg tidak jalan di Edge Runtime).
 // Dipakai di middleware.ts. Config lengkap (dengan adapter & Credentials provider) ada di lib/auth.ts.

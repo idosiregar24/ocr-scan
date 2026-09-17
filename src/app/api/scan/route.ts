@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { rateLimit } from "@/lib/rate-limit";
 import { scanUploadSchema } from "@/lib/validations/scan";
-import { prepareReceiptImage, UnreadableImageError } from "@/lib/services/image";
-import { buildReceiptImageKey, putObject, StorageNotConfiguredError } from "@/lib/storage";
-import { consumeReceiptQuota, createPendingReceipt, refundReceiptQuota, QuotaExceededError } from "@/lib/services/receipt";
+import { UnreadableImageError } from "@/lib/services/image";
+import { StorageNotConfiguredError } from "@/lib/storage";
+import { QuotaExceededError } from "@/lib/services/receipt";
+import { startReceiptScan } from "@/lib/services/scan";
 import { enqueueReceiptOcr } from "@/lib/jobs/receipt-ocr";
 import { toReceiptDTO } from "@/lib/dto/receipt";
 
@@ -36,29 +37,16 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    await consumeReceiptQuota(session.user.id);
-  } catch (err) {
-    if (err instanceof QuotaExceededError) {
-      return NextResponse.json({ error: { message: err.message, code: "QUOTA_EXCEEDED" } }, { status: 402 });
-    }
-    throw err;
-  }
-
-  try {
     const original = Buffer.from(await parsed.data.image.arrayBuffer());
-    const prepared = await prepareReceiptImage(original);
-    const imageKey = buildReceiptImageKey(session.user.id, prepared.contentType);
-    await putObject(imageKey, prepared.body, prepared.contentType);
-
-    const receipt = await createPendingReceipt(session.user.id, imageKey);
+    const receipt = await startReceiptScan(session.user.id, original);
     enqueueReceiptOcr({ receiptId: receipt.id });
 
     // 202: OCR masih berjalan di background, client polling GET /api/jobs/:id (PRD §5.3).
     return NextResponse.json({ data: toReceiptDTO(receipt) }, { status: 202 });
   } catch (err) {
-    // Kuota sudah terpotong di atas tapi struk tidak jadi dibuat — kembalikan supaya user tidak dirugikan.
-    await refundReceiptQuota(session.user.id);
-
+    if (err instanceof QuotaExceededError) {
+      return NextResponse.json({ error: { message: err.message, code: "QUOTA_EXCEEDED" } }, { status: 402 });
+    }
     if (err instanceof UnreadableImageError) {
       return NextResponse.json({ error: { message: err.message, code: "UNREADABLE_IMAGE" } }, { status: 422 });
     }

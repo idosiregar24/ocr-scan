@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Camera, LayoutDashboard, ReceiptText, Settings } from "lucide-react";
+import { Camera, LayoutDashboard, MessageCircle, ReceiptText, Settings } from "lucide-react";
 import { cn } from "cn";
 
 const NAV_ITEMS = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/scan", label: "Scan", icon: Camera },
+  { href: "/chat", label: "Chat", icon: MessageCircle },
   { href: "/receipts", label: "Riwayat", icon: ReceiptText },
   { href: "/settings", label: "Pengaturan", icon: Settings },
 ] as const;
@@ -54,7 +55,7 @@ export function DashboardTabBar() {
       aria-label="Navigasi utama"
       className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
     >
-      <ul className="grid grid-cols-4">
+      <ul className="grid grid-cols-5">
         {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
           const active = isActive(href);
           return (

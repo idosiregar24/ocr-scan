@@ -149,6 +149,7 @@ StrukScan menawarkan solusi tiga langkah yang sederhana:
 | F-13 | **API Publik** | REST API untuk integrasi dengan sistem akuntansi eksternal (Jurnal, Accurate) | 🟢 Could | Biz |
 | F-14 | **Scan via WhatsApp Bot** | Kirim foto struk ke WhatsApp bot, data masuk otomatis | 🟢 Could | Biz |
 | F-15 | **AI Financial Advisor** | Saran penghematan berbasis pola belanja pengguna | ⚪ Won't (v1) | v2 |
+| F-16 | **Chat Asisten (in-app + Telegram)** | Kirim foto struk lewat chat, tandai tagihan lunas/belum lunas dengan bahasa natural, minta laporan tahunan/bulanan | 🟡 Should | Free (scan via chat tetap memotong kuota) |
 
 ### 4.2 Alur Utama — OCR Scan Struk (Happy Path)
 
@@ -162,6 +163,29 @@ StrukScan menawarkan solusi tiga langkah yang sederhana:
 6. Pengguna review → koreksi jika perlu → klik Simpan
 7. Data tersimpan ke DB → muncul di riwayat dan analitik
 ```
+
+### 4.3 Chat Asisten & Tagihan (F-16)
+
+> Ditambahkan September 2026 atas permintaan PM — di luar scope PRD awal. F-14 (WhatsApp bot) tetap di roadmap v2.0; Telegram dipilih lebih dulu karena Bot API gratis dan tanpa verifikasi bisnis.
+
+**Channel:** widget chat di dashboard (`/chat`) dan bot Telegram. Keduanya memakai satu chat engine dan satu riwayat percakapan per user. Akun Telegram dihubungkan lewat deep link sekali pakai (`/start <token>`, kedaluwarsa 15 menit) dari halaman Chat; hanya private chat yang dilayani.
+
+**Konsep Tagihan (`bills`):** entity terpisah dari `receipts`. Struk adalah catatan transaksi; tagihan adalah kewajiban bayar dengan status `UNPAID`/`PAID`. Tagihan bisa berasal dari struk (maks. 1 tagihan per struk) atau dibuat manual dari chat (mis. tagihan listrik tanpa struk).
+
+**Nomor tagihan:** `bill_no` diambil dari `receipt_no` struk asli. Kalau OCR tidak menemukan nomor, user menyebutkannya di chat ("belum lunas no 32"). Karena nomor struk dari toko tidak dijamin unik, pencocokan mengabaikan huruf besar/kecil dan nol di depan (`0032` = `32`). Kalau ada lebih dari satu tagihan yang cocok, bot menampilkan daftar (toko, tanggal, nominal) dan meminta user mengulang perintah dengan nama toko, bukan menebak.
+
+**Perintah yang dikenali (bahasa natural, diparse Gemini; fallback parser aturan):**
+
+| Intent | Contoh | Hasil |
+|---|---|---|
+| Kirim foto | foto struk (boleh dengan caption) | Struk di-OCR async lewat pipeline yang sama dengan F-01, bot membalas ringkasan + link review |
+| Tandai belum lunas | "ini belum lunas", "struk no 32 belum dibayar" | Buat tagihan `UNPAID` dari struk terakhir di chat / struk dengan nomor itu |
+| Tagihan manual | "tagihan listrik no INV-88 350rb belum lunas" | Buat tagihan `UNPAID` tanpa struk |
+| Tandai lunas | "tagihan no 32 dah lunas yah" | Tagihan jadi `PAID`, `paid_at` diisi |
+| Daftar tagihan | "tagihan apa aja yang belum lunas?" | Daftar tagihan `UNPAID` + total outstanding |
+| Laporan | "laporan akhir tahun", "rekap Maret 2026" | Total pengeluaran, jumlah struk, rincian per bulan, toko teratas, tagihan lunas & sisa outstanding |
+
+**Batasan v1:** laporan dikirim sebagai ringkasan di chat (bukan file) supaya tidak tumpang tindih dengan F-07/F-10 (Pro). Hasil OCR dari chat tetap bisa direview/diedit di halaman detail struk (F-02).
 
 ---
 
@@ -196,6 +220,9 @@ StrukScan menawarkan solusi tiga langkah yang sederhana:
 | `workspaces` | id, owner_id, name, plan, member_limit, timestamps | has many users (pivot), receipts |
 | `categories` | id, user_id, name, color, icon, budget_limit, timestamps | has many receipt_items |
 | `subscriptions` | id, user_id, stripe_id, stripe_status, stripe_price, trial_ends_at, ends_at, timestamps | belongs to user (via Cashier) |
+| `bills` (F-16) | id, user_id, receipt_id (nullable, unique), bill_no, vendor, amount, issued_at, status (unpaid\|paid), paid_at, timestamps | belongs to user; optional 1—1 receipt |
+| `chat_messages` (F-16) | id, user_id, channel (web\|telegram), role (user\|assistant), content, receipt_id (nullable), payload (JSON), external_id, processed_at, timestamps | belongs to user; optional receipt |
+| `users.telegram_chat_id` (F-16) | kolom tambahan, unique, nullable | link akun Telegram |
 
 ### 5.3 Alur OCR — Sequence
 
